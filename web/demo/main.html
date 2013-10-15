@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" href="css/demos.css" type="text/css" >
+		<link href="css/jquery-ui/ui-lightness/jquery.ui.all.css" rel="stylesheet" type="text/css">
+		<link rel="stylesheet" type="text/css" href="css/zTreeStyle/zTreeStyle.css">
+		<link href="../css/jquery-grid/ui.jqgrid.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="js/jquery-1.8.0.js"></script>
+		<script type="text/javascript" src="js/jquery.ztree.all-3.5.js"></script>
+		<script src="js/jquery-grid/i18n/grid.locale-cn.js" type="text/javascript"></script>
+		<script src="js/jquery-grid/jquery.jqGrid.src.js" type="text/javascript"></script>
+
+		<title>无标题文档</title>
+	<body>
+		<script type="text/javascript">
+			$().ready(function() {
+				$('.left-nav a').click(function(ev) {
+					window.location.hash = this.href.replace(/.+\/([^\/]+)\/index\.html/, '$1') + '|default';
+					loadPage(this.href, this.outerText, this.getAttribute('href'));
+					$('.left-nav a.selected').removeClass('selected');
+					$(this).addClass('selected');
+					ev.preventDefault();
+				});
+				if (window.location.hash) {
+					if (window.location.hash.indexOf('|') === -1) {
+						window.location.hash += '|default';
+					}
+					var path = window.location.href.replace(/(index\.html)?#/, '');
+					path = path.replace('\|', '/') + '.html';
+					loadPage(path);
+				}
+
+				function loadPage(path, title, relatePath) {
+					var relateRoot = relatePath.substr(0, relatePath.lastIndexOf("/")) + "/";
+					var section = path.replace(/\/[^\/]+\.html/, '');
+					var header = section.replace(/.+\/([^\/]+)/, '$1').replace(/_/, ' ');
+
+					$('td.normal div.normal')
+							.empty()
+							.append('<h4 class="demo-subheader">Functional demo:</h4>')
+							.append('<h3 class="demo-header">' + title + '</h3>')
+							.append('<div id="demo-config"></div>')
+							.find('#demo-config')
+							.append('<div id="demo-frame"></div><div id="demo-config-menu"></div><div id="demo-link"><a class="demoWindowLink" href="#"><span class="ui-icon ui-icon-newwin"></span>Open demo in a new window</a></div>')
+							.find('#demo-config-menu')
+							.load(path + ' .demos-nav', function() {
+						$('#demo-config-menu a').each(function() {
+							//this.setAttribute('href', section + '/' + this.getAttribute('href').replace(/.+\/([^\/]+)/, '$1'));
+							$(this).attr('target', 'demo-frame');
+							$(this).click(function() {
+								resetDemos();
+								$(this).parents('ul').find('li').removeClass('demo-config-on');
+								$(this).parent().addClass('demo-config-on');
+								$('#demo-notes').fadeOut();
+
+								//Set the hash to the actual page without ".html"
+								window.location.hash = header + '|' + this.getAttribute('href');
+								var href = this.href.indexOf(".do?") === -1 ? (relateRoot + this.getAttribute('href')) : this.href;
+								loadDemo(href);
+
+								return false;
+							});
+						});
+
+						if (window.location.hash) {
+							var demo = window.location.hash.split('|')[1];
+							$('#demo-config-menu .demo-config-on a').each(function() {								
+									$(this).parents('ul').find('li').removeClass('demo-config-on');
+									$(this).parent().addClass('demo-config-on');
+									var href = this.href.indexOf(".do?") === -1 ? (relateRoot + this.getAttribute('href')) : this.href;
+									loadDemo(href);								
+							});
+						}
+
+						updateDemoNotes();
+					})
+							.end()
+							.find('#demo-link a')
+							.bind('click', function(ev) {
+						window.open(this.href);
+						ev.preventDefault();
+					})
+							.end()
+							.end();
+					resetDemos();
+				}
+
+				function loadDemo(path) {
+					jQuery.ajax({
+						type: "GET",
+						contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+						url: path,
+						data: {},
+						success: function(data) {
+							var source = data;
+							$('#demo-style').remove();
+							$('#demo-frame').empty().html(data);
+							$('#demo-frame style').clone().appendTo('head').attr('id', 'demo-style');
+							$('#demo-link a').attr('href', path);
+							updateDemoNotes();
+							updateDemoSource(source);
+						}
+					});
+				}
+
+				function updateDemoNotes() {
+					var notes = $('#demo-frame .demo-description');
+					if ($('#demo-notes').length == 0) {
+						$('<div id="demo-notes"></div>').insertAfter('#demo-config');
+					}
+					$('#demo-notes').hide().empty().html(notes.html());
+					$('#demo-notes').show();
+					notes.hide();
+				}
+
+				function updateDemoSource(source) {
+					if ($('#demo-source').length == 0) {
+						$('<div id="demo-source"><a href="#" class="source-closed">View Source</a><div><pre><code></code></pre></div></div>').insertAfter('#demo-notes');
+						$('#demo-source').find(">a").click(function() {
+							$(this).toggleClass("source-closed").toggleClass("source-open").next().toggle();
+							return false;
+						}).end().find(">div").hide();
+					}
+					var cleanedSource = source
+							.replace('themes/base/jquery.ui.all.css', 'theme/jquery.ui.all.css')
+							.replace(/\s*\x3Clink.*demos\x2Ecss.*\x3E\s*/, '\r\n\t')
+							.replace(/\x2E\x2E\x2F\x2E\x2E\x2F/g, '');
+
+					$('#demo-source code').empty().text(cleanedSource);
+				}
+
+				function resetDemos() {
+					$(".ui-dialog-content").remove();
+				}
+			});
+			function loadHtml() {
+				var url = $("#viewUrl").val();
+				if (!(url && $.trim(url))) {
+					url = "";
+				}
+				$("#demo-frame").load("users/manager.html");
+			}
+		</script>
+		<input type="button" name="loadHtml" id="loadHtml" value="loadHtml" onClick="loadHtml();" />
+		<input type="text" style="width:200px;" id="viewUrl" value="ViewUrl" />
+		<table class="layout-grid" cellspacing="0" cellpadding="0">
+			<tr>
+				<td class="left-nav">
+					<dl class="demos-nav">
+						<dt>用户管理</dt>
+						<dd><a href="users/cata-manage.jsp">用户分类管理</a></dd>
+						<dd><a href="users/user-manage.jsp">订阅用户管理</a></dd>
+						<dt>消息管理</dt>
+						<dd><a href="messages/record-manage.jsp">消息记录查询</a></dd>
+						<dd><a href="messages/act-manage.jsp">营销活动关联</a></dd>
+						<dd><a href="messages/qr-manage.jsp">二维码管理</a></dd>
+						<dd><a href="messages/deploy-manage.jsp">消息发布管理</a></dd>
+						<dt>漂流瓶管理</dt>
+						<dd><a href="flowbots/default-manage.jsp">漂流瓶限制管理</a></dd>
+						<dd><a href="flowbots/info-manage.jsp">漂流瓶信息管理</a></dd>
+						<dt>信息统计</dt>
+						<dd><a href="statistic/action-manage.jsp">行为分析：用户行为统计</a></dd>
+						<dd><a href="statistic/inter-manage.jsp">交互分析：消息统计</a></dd>
+						<dd><a href="statistic/activity-manage.jsp">活动分析：活动分享统计</a></dd>
+						<dd><a href="statistic/ai-manage.jsp">智能分析：关键词统计</a></dd>
+					</dl>
+				</td>
+				<td class="normal">
+
+					<div class="normal">
+
+						<h3>说明</h3>
+						<p>
+							该演示仅仅作为微信营销应用与营销平台的一个尝试。<br>
+							演示中将着重体现微信在用户管理、用户互动层面的应用。<br>
+							消息管理功能真正能和营销系统切合起来，需要原有的营销平台提供数据接口。<br>
+							智能化应答需要通过统计法，慢慢构建知识库来实现。
+						</p>
+
+					</div>
+
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

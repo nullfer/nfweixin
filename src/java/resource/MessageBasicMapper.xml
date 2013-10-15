@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="GBK" ?> 
+<!DOCTYPE mapper 
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.myapp.sales.mybatis.mapper.MessageBasicMapper"> 
+	<!-- 这里namespace必须是UserMapper接口的路径，不然要运行的时候要报错 “is not known to the MapperRegistry”--> 
+	<insert id="insertMessageType" parameterType="MessageType"> 
+		insert into messageType(name,description,replySupport,code) values(#{name},#{description},#{replySupport},#{code}) 
+		<!-- 这里sql结尾不能加分号，否则报“ORA-00911”的错误 --> 
+	</insert> 
+	
+	<insert id="insertKeyword" parameterType="WxKeyword"> 
+		insert into wxkeywords(msgTypeId,keyword,description) values(#{msgTypeId},#{keyword},#{description}) 
+	</insert> 
+	
+	<insert id="insertReply" parameterType="WxReply"> 
+		insert into wxreplydict(msgTypeId,description,content) values(#{msgTypeId},#{description},#{content}) 
+	</insert> 
+	
+	<!-- 这里的id必须和UserMapper接口中的接口方法名相同，不然运行的时候也要报错 --> 
+	<select id="getAllMessageType" resultType="MessageType"> 
+		select id,name,description,replySupport,code from messageType
+	</select> 
+	
+	<select id="getAllKeywords" resultType="WxKeyword"> 
+		select id,name,description,replySupport,code from wxkeywords
+	</select> 
+	
+	<select id="getAllReplies" resultType="WxReply"> 
+		select r.msgTypeId,r.description,r.content,r.id,t.description msgTypeName from wxreplydict r left join messageType t on r.msgTypeId=t.id;
+	</select> 
+	
+</mapper>

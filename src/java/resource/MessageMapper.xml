@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="GBK" ?> 
+<!DOCTYPE mapper 
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.myapp.sales.mybatis.mapper.MessageMapper"> 
+	<!-- 这里namespace必须是UserMapper接口的路径，不然要运行的时候要报错 “is not known to the MapperRegistry”--> 
+	<insert id="saveMessage" parameterType="MessageEntity"> 
+		insert into message(msgId,toUserName,fromUserName,createTime,msgType,postSign) values(#{msgId},#{toUserName},#{fromUserName},#{createTime},#{msgType},#{postSign}) 
+		<!-- 这里sql结尾不能加分号，否则报“ORA-00911”的错误 --> 
+	</insert> 
+	<insert id="saveTxtMessage" parameterType="TxtMsgEntity"> 
+		insert into textmessage(msgId,content) values(#{msgId},#{content}) 
+	</insert> 
+	<insert id="saveImgMessage" parameterType="ImgMsgEntity"> 
+		insert into imagemessage(msgId,picUrl) values(#{msgId},#{picUrl}) 
+	</insert> 
+	<insert id="saveLinkMessage" parameterType="LinkMsgEntity"> 
+		insert into linkmessage(msgId,title,description,url) values(#{msgId},#{title},#{description},#{url}) 
+	</insert> 
+	<insert id="saveLocMessage" parameterType="LocMsgEntity"> 
+		insert into locationmessage(msgId,location_X,location_Y,scale,label) values(#{msgId},#{location_X},#{location_Y},#{scale},#{label}) 
+	</insert> 
+	<insert id="saveVoiceMessage" parameterType="VoiceMsgEntity"> 
+		insert into voicemessage(msgId,mediaId,format) values(#{msgId},#{mediaId},#{format}) 
+	</insert> 
+		<insert id="saveEventMessage" parameterType="EventMsgEntity"> 
+		insert into eventmessage(msgId,event,eventKey) values(#{msgId},#{event},#{eventKey}) 
+	</insert> 
+ 
+	<!-- 这里的id必须和UserMapper接口中的接口方法名相同，不然运行的时候也要报错 --> 
+	<select id="getMessage" resultType="MessageEntity" parameterType="java.lang.String"> 
+		select * from message where msgId=#{msgId} 
+	</select> 
+	
+	<select id="getAllMessage" resultType="MessageEntity"> 
+		select msgId,toUserName,fromUserName,createTime,msgType from message  
+	</select> 
+	<select id="getAllTxtMessage" resultType="TxtMsgEntity"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.content from message m left join textmessage t on m.msgId=t.msgId 
+	</select> 
+	<select id="getTxtMessage" resultType="TxtMsgEntity" parameterType="java.lang.String"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.content from message m left join textmessage t on m.msgId=t.msgId where m.msgId=#{msgId} 
+	</select> 
+	<select id="getImgMessage" resultType="ImgMsgEntity" parameterType="java.lang.String"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.picUrl from message m left join imagemessage t on m.msgId=t.msgId where m.msgId=#{msgId} 
+	</select> 
+	<select id="getLinkMessage" resultType="LinkMsgEntity" parameterType="java.lang.String"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.title,t.description,t.url from message m left join linkmessage t on m.msgId=t.msgId where m.msgId=#{msgId} 
+	</select> 
+	<select id="getLocMessage" resultType="LocMsgEntity" parameterType="java.lang.String"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.location_X,t.location_Y,t.scale,t.label from message m left join locationmessage t on m.msgId=t.msgId where m.msgId=#{msgId} 
+	</select> 
+	<select id="getVoiceMessage" resultType="VoiceMsgEntity" parameterType="java.lang.String"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.mediaId,t.format from message m left join voicemessage t on m.msgId=t.msgId where m.msgId=#{msgId} 
+	</select> 
+	<select id="getEventMessage" resultType="EventMsgEntity" parameterType="java.lang.String"> 
+		select m.msgId,toUserName,fromUserName,createTime,msgType,t.mediaId,t.event,t.eventKey from message m left join eventmessage t on m.msgId=t.msgId where m.msgId=#{msgId} 
+	</select> 
+</mapper>

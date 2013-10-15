@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+<!--	<bean id="propertyConfigurer"
+		 class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		 p:location="/WEB-INF/classes/jdbc.properties" />
+
+	<bean id="dataSource"
+	  class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+	  p:driverClassName="${jdbc.driverClassName}"
+	  p:url="${jdbc.url}"
+	  p:username="${jdbc.username}"
+	  p:password="${jdbc.password}" />-->
+
+	<!-- ADD PERSISTENCE SUPPORT HERE (jpa, hibernate, etc) -->
+	<bean id="t1001svr" class="com.myapp.sales.business.t1001.T1001Svr" autowire="byName"/>
+	<bean name="/t1001" class="com.myapp.sales.business.t1001.T1001Action"  autowire="byName">
+		<property name="t1001svr">
+			<ref local="t1001svr"/>			
+		</property>
+	</bean>
+	<bean id="weixinsvr" class="com.myapp.sales.business.weixin.WeixinSvr" autowire="byName"/>
+	<bean name="/weixin" class="com.myapp.sales.business.weixin.WeixinAction"  autowire="byName" >
+		<property name="weixinSvr">
+			<ref local="weixinsvr"/>			
+		</property>
+	</bean>
+
+</beans>
